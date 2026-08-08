@@ -10,7 +10,7 @@ import Crest from './Crest'
 const SECTIONS = ['home', 'about', 'services', 'values', 'contact'] as const
 
 export default function Nav() {
-  const { t, toggle, lang } = useLang()
+  const { t, toggle } = useLang()
   const { isDark, toggle: toggleTheme } = useTheme()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
@@ -74,13 +74,13 @@ export default function Nav() {
       >
         <nav className="container-x flex h-17 items-center justify-between md:h-21">
           <button onClick={() => go('home')} className="group flex items-center gap-2.5" aria-label={t.brandFull}>
-            <Crest className="h-9 w-auto transition-transform duration-700 ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-105 md:h-10" />
+            <Crest className="h-10 w-auto transition-transform duration-700 ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-105 md:h-11" />
             <span className="hidden flex-col items-start leading-none sm:flex">
-              <span className="font-display text-[15px] font-medium tracking-wide text-ink md:text-base">
+              <span className="font-display text-[17px] leading-tight font-medium text-ink md:text-[19px] rtl:text-[19px] rtl:md:text-[21px]">
                 {t.brand}
               </span>
-              <span className="mt-1 text-[9px] uppercase tracking-[0.2em] text-muted">
-                {lang === 'ar' ? 'PERFUMES' : 'PERFUMES CO.'}
+              <span dir="ltr" className="mt-1.5 text-[8.5px] font-medium uppercase tracking-[0.28em] text-muted md:text-[9px]">
+                PERFUMES CO.
               </span>
             </span>
           </button>
@@ -142,9 +142,14 @@ export default function Nav() {
           }`}
         >
           <div className="flex items-center justify-between border-b border-line px-6 py-5">
-            <div className="flex items-center gap-2.5">
-              <Crest className="h-9 w-auto" />
-              <span className="font-display text-[15px] font-medium text-ink">{t.brand}</span>
+            <div className="flex items-center gap-3">
+              <Crest className="h-10 w-auto" />
+              <span className="flex flex-col leading-none">
+                <span className="font-display text-[17px] font-medium text-ink rtl:text-[19px]">{t.brand}</span>
+                <span dir="ltr" className="mt-1.5 text-[8.5px] font-medium uppercase tracking-[0.28em] text-muted">
+                  PERFUMES CO.
+                </span>
+              </span>
             </div>
             <button onClick={() => setOpen(false)} className="icon-btn" aria-label={t.ui.close}>
               <X size={17} strokeWidth={1.7} />

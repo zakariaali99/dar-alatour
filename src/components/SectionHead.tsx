@@ -22,12 +22,10 @@ export default function SectionHead({ eyebrow, title, lead, align = 'start' }: P
         <p className="eyebrow">{eyebrow}</p>
       </div>
 
-      <h2 className="rv will-reveal mt-5 font-display text-[2rem] leading-[1.15] font-light tracking-[-0.015em] text-ink sm:text-[2.6rem] lg:text-[3rem]">
-        {title}
-      </h2>
+      <h2 className="section-title rv will-reveal font-display mt-5 text-ink">{title}</h2>
 
       {lead && (
-        <p className="rv will-reveal mt-5 text-[0.98rem] leading-[1.8] text-ink-soft md:text-base">{lead}</p>
+        <p className="rv will-reveal mt-5 text-[1rem] leading-[1.85] text-ink-soft md:text-[1.05rem]">{lead}</p>
       )}
 
       <div ref={rule} className="rule mt-9 w-full max-w-[7rem]" />

@@ -20,7 +20,8 @@ export const content = {
     },
     hero: {
       eyebrow: 'استيراد العطور ومواد الزينة — طرابلس، ليبيا',
-      title: 'نجلب عطور العالم إلى ليبيا.',
+      title: 'نجلب عطور العالم إلى',
+      titleAccent: 'ليبيا.',
       body: 'شركة دار العطور لاستيراد العطور ومواد الزينة تختص باستيراد وتوريد وتوزيع العطور ومستحضرات التجميل من مصادر موثوقة إلى السوق الليبي.',
       cta: 'تواصل معنا',
       ctaAlt: 'واتساب',
@@ -116,7 +117,8 @@ export const content = {
     },
     hero: {
       eyebrow: 'Perfume & cosmetics import — Tripoli, Libya',
-      title: "Bringing the world's fragrances to Libya.",
+      title: "Bringing the world's fragrances to",
+      titleAccent: 'Libya.',
       body: 'Dar Al-Atour Perfumes Company imports, supplies and distributes perfumes and cosmetics from trusted sources to the Libyan market.',
       cta: 'Get in touch',
       ctaAlt: 'WhatsApp',

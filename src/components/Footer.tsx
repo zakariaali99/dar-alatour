@@ -16,10 +16,12 @@ export default function Footer() {
         {/* Brand */}
         <div>
           <div className="flex items-center gap-3">
-            <Crest className="h-12 w-auto" />
+            <Crest className="h-13 w-auto" />
             <div className="leading-none">
-              <p className="font-display text-lg font-medium text-ink">{t.brand}</p>
-              <p className="mt-1.5 text-[9px] uppercase tracking-[0.2em] text-muted">PERFUMES CO.</p>
+              <p className="font-display text-xl font-medium text-ink rtl:text-[22px]">{t.brand}</p>
+              <p dir="ltr" className="mt-1.5 text-[9px] font-medium uppercase tracking-[0.28em] text-muted">
+                PERFUMES CO.
+              </p>
             </div>
           </div>
 
