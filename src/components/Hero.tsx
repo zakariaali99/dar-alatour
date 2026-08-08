@@ -1,10 +1,48 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { ArrowDown, MessageCircle } from 'lucide-react'
 import { useLang } from '../lib/lang'
 import { scrollToId } from '../lib/smooth'
 import { gsap, reduceMotion } from '../lib/motion'
 import { CONTACT } from '../content'
 import Crest from './Crest'
+
+type Mote = {
+  left: number
+  bottom: number
+  size: number
+  green: boolean
+  rise: number
+  drift: number
+  duration: number
+  delay: number
+  peak: number
+}
+
+/** Fixed seed, so the drift looks scattered but never re-rolls on a re-render. */
+function buildMotes(count: number): Mote[] {
+  let seed = 20260408
+  const rand = () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296
+    return seed / 4294967296
+  }
+
+  return Array.from({ length: count }, (_, i) => {
+    const size = 3.5 + rand() * 5.5
+    return {
+      left: 8 + rand() * 84,
+      bottom: 4 + rand() * 34,
+      size,
+      green: rand() > 0.68,
+      rise: 210 + rand() * 200,
+      drift: (rand() - 0.5) * 90,
+      duration: 7 + rand() * 6,
+      // Spread the first appearance so they don't all launch together.
+      delay: 1.4 + (i / count) * 6 + rand() * 1.6,
+      // Smaller motes sit further back, so they burn dimmer.
+      peak: 0.55 + (size / 9) * 0.45,
+    }
+  })
+}
 
 export default function Hero() {
   const root = useRef<HTMLElement>(null)
@@ -13,6 +51,7 @@ export default function Hero() {
   const { t, lang } = useLang()
 
   const waHref = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(t.contact.waMessage)}`
+  const motes = useMemo(() => buildMotes(20), [])
 
   useEffect(() => {
     const el = root.current
@@ -20,8 +59,8 @@ export default function Hero() {
 
     if (reduceMotion()) {
       gsap.set(el.querySelectorAll('.will-reveal, .word'), { opacity: 1, y: 0 })
-      gsap.set([stage.current, '.crest-ring', '.orbit'], { opacity: 1 })
-      gsap.set(el.querySelectorAll('.crest-pulse, .crest-spark, .sheen-bar, .crest-glare'), { opacity: 0 })
+      gsap.set([stage.current, '.hero-glow'], { opacity: 1 })
+      gsap.set(el.querySelectorAll('.mote'), { opacity: 0 })
       gsap.set(el.querySelectorAll('.swash path'), { strokeDasharray: 'none', strokeDashoffset: 0 })
       return
     }
@@ -58,90 +97,56 @@ export default function Hero() {
           { strokeDashoffset: 0, duration: 1.25, ease: 'power2.inOut' },
           1.05,
         )
-        .fromTo('.crest-ring', { opacity: 0, scale: 0.72 }, { opacity: 1, scale: 1, duration: 1.7, stagger: 0.14 }, 0.5)
-        .fromTo('.orbit', { opacity: 0 }, { opacity: 1, duration: 1.2 }, 1.3)
 
       // --- Continuous motion -------------------------------------------------
-      // Rings turn at different speeds and directions.
-      gsap.to('.crest-ring-outer', { rotate: 360, duration: 78, ease: 'none', repeat: -1 })
-      gsap.to('.crest-ring-mid', { rotate: -360, duration: 54, ease: 'none', repeat: -1 })
-      gsap.to('.orbit', { rotate: 360, duration: 22, ease: 'none', repeat: -1 })
+      // The aura turns slowly and breathes; nothing else competes with it.
+      gsap.to('.crest-aura', { rotate: 360, duration: 46, ease: 'none', repeat: -1 })
+      gsap.to('.crest-aura', {
+        scale: 1.13,
+        opacity: 0.85,
+        duration: 6.5,
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+      })
 
       // The crest drifts and breathes.
       gsap.to(crest.current, { y: -13, duration: 5, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 1.5 })
       gsap.to(crest.current, { scale: 1.022, duration: 7.5, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 2 })
 
-      // A gold light bar sweeps across the mark, clipped to the artwork's alpha.
-      gsap.set('.sheen-bar', { rotation: 16 })
-      const sheen = gsap.fromTo(
-        '.sheen-bar',
-        { xPercent: -280 },
-        { xPercent: 460, duration: 1.7, ease: 'power2.inOut', repeat: -1, repeatDelay: 5, delay: 2.1 },
-      )
+      // Fragrance: each mote rises once, fades, and starts over on its own clock.
+      const moteEls = gsap.utils.toArray<HTMLElement>('.mote')
+      moteEls.forEach((node, i) => {
+        const m = motes[i]
+        if (!m) return
 
-      // Halo rings ping outward from behind the crest.
-      gsap.fromTo(
-        '.crest-pulse',
-        { scale: 0.9, opacity: 0 },
-        {
-          keyframes: [
-            { opacity: 0.5, scale: 1.06, duration: 1.3, ease: 'power2.out' },
-            { opacity: 0, scale: 1.52, duration: 3.1, ease: 'power2.out' },
-          ],
-          repeat: -1,
-          repeatDelay: 1.1,
-          stagger: 2.3,
-          delay: 1.6,
-        },
-      )
-
-      // Glints catch the light one at a time.
-      gsap.set('.crest-spark', { scale: 0, opacity: 0, transformOrigin: '50% 50%' })
-      gsap.to('.crest-spark', {
-        keyframes: [
-          { scale: 1, opacity: 1, rotation: 45, duration: 0.6, ease: 'back.out(2.2)' },
-          { scale: 0, opacity: 0, rotation: 95, duration: 0.75, ease: 'power2.in' },
-        ],
-        repeat: -1,
-        repeatDelay: 2.7,
-        stagger: { each: 1.15, from: 'random' },
-        delay: 2.4,
+        gsap
+          .timeline({ repeat: -1, delay: m.delay })
+          .fromTo(
+            node,
+            { y: 0, x: 0, scale: 0.35 },
+            { y: -m.rise, x: m.drift, scale: 1, duration: m.duration, ease: 'none' },
+            0,
+          )
+          .fromTo(
+            node,
+            { opacity: 0 },
+            { opacity: m.peak, duration: m.duration * 0.28, ease: 'power1.out' },
+            0,
+          )
+          .to(node, { opacity: 0, duration: m.duration * 0.46, ease: 'power1.in' }, m.duration * 0.54)
       })
-
-      // Hovering the crest replays the sweep and lights the glare.
-      const glare = el.querySelector<HTMLElement>('.crest-glare')
-      gsap.set(glare, { xPercent: -50, yPercent: -50, opacity: 0 })
-
-      const c = crest.current
-      if (c) {
-        const onEnter = () => {
-          sheen.restart(true)
-          gsap.to(glare, { opacity: 0.55, duration: 0.45, overwrite: 'auto' })
-        }
-        const onLeaveCrest = () => gsap.to(glare, { opacity: 0, duration: 0.6, overwrite: 'auto' })
-        c.addEventListener('pointerenter', onEnter)
-        c.addEventListener('pointerleave', onLeaveCrest)
-        cleanups.push(() => {
-          c.removeEventListener('pointerenter', onEnter)
-          c.removeEventListener('pointerleave', onLeaveCrest)
-        })
-      }
 
       gsap.to('.orb-a', { x: 60, y: -40, duration: 17, ease: 'sine.inOut', repeat: -1, yoyo: true })
       gsap.to('.orb-b', { x: -50, y: 50, duration: 21, ease: 'sine.inOut', repeat: -1, yoyo: true })
 
-      // --- Pointer tilt + tracking glare --------------------------------------
+      // --- Pointer tilt -------------------------------------------------------
       const s = stage.current
       if (s && window.matchMedia('(pointer: fine)').matches) {
         const rx = gsap.quickTo(s, 'rotationX', { duration: 0.9, ease: 'power3.out' })
         const ry = gsap.quickTo(s, 'rotationY', { duration: 0.9, ease: 'power3.out' })
         const tx = gsap.quickTo(s, 'x', { duration: 1.1, ease: 'power3.out' })
         const ty = gsap.quickTo(s, 'y', { duration: 1.1, ease: 'power3.out' })
-
-        // The glare is centred on itself, then follows the pointer inside the
-        // crest so the mark catches light wherever the cursor sits.
-        const gx = gsap.quickTo(glare, 'x', { duration: 0.6, ease: 'power3.out' })
-        const gy = gsap.quickTo(glare, 'y', { duration: 0.6, ease: 'power3.out' })
 
         const onMove = (e: PointerEvent) => {
           const r = s.getBoundingClientRect()
@@ -152,11 +157,6 @@ export default function Hero() {
           ry(clamp(px) * 13)
           tx(clamp(px) * 16)
           ty(clamp(py) * 13)
-
-          const cr = crest.current?.getBoundingClientRect()
-          if (!cr) return
-          gx(e.clientX - cr.left)
-          gy(e.clientY - cr.top)
         }
 
         const onLeave = () => {
@@ -296,104 +296,35 @@ export default function Hero() {
         <div className="hero-stage-wrap order-1 flex justify-center lg:order-2 lg:justify-end">
           <div className="relative [perspective:1100px]">
             <div ref={stage} className="relative [transform-style:preserve-3d]">
-              {/* glow */}
-              <div className="hero-glow pointer-events-none absolute inset-0 -m-20 rounded-full bg-[radial-gradient(circle,var(--color-paper)_0%,color-mix(in_srgb,var(--color-gold-tint)_60%,transparent)_45%,transparent_72%)]" />
-              <div className="hero-glow pointer-events-none absolute inset-0 -m-8 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-brand-fg)_10%,transparent)_0%,transparent_66%)]" />
-
-              {/* rings — class names avoid Tailwind's `ring` utility on purpose */}
-              <div className="pointer-events-none absolute inset-0 -m-10 sm:-m-12 lg:-m-14">
-                <svg
-                  className="crest-ring crest-ring-outer h-full w-full text-gold"
-                  viewBox="0 0 200 200"
-                  fill="none"
-                  aria-hidden
-                >
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="99"
-                    stroke="currentColor"
-                    strokeOpacity="0.5"
-                    strokeWidth="0.5"
-                    strokeDasharray="1 7"
-                    strokeLinecap="round"
-                  />
-                </svg>
+              {/* A slow wash of gold and green turning behind the mark. The
+                  wrapper owns the entrance so it never fights the breathing. */}
+              <div className="hero-glow pointer-events-none absolute inset-0 -m-24 sm:-m-28">
+                <div className="crest-aura h-full w-full rounded-full opacity-70 blur-3xl" />
               </div>
-
-              <div className="pointer-events-none absolute inset-0 -m-3 sm:-m-4">
-                <svg
-                  className="crest-ring crest-ring-mid h-full w-full text-brand-fg"
-                  viewBox="0 0 200 200"
-                  fill="none"
-                  aria-hidden
-                >
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="99"
-                    stroke="currentColor"
-                    strokeOpacity="0.28"
-                    strokeWidth="0.7"
-                    strokeDasharray="120 260"
-                    strokeLinecap="round"
-                  />
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="99"
-                    stroke="currentColor"
-                    strokeOpacity="0.16"
-                    strokeWidth="0.7"
-                    strokeDasharray="40 320"
-                    strokeDashoffset="-190"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-
-              {/* orbiting mark */}
-              <div className="orbit pointer-events-none absolute inset-0 -m-10 sm:-m-12 lg:-m-14">
-                <span className="absolute start-1/2 top-0 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-gold shadow-[0_0_12px_2px_color-mix(in_srgb,var(--color-gold)_55%,transparent)] rtl:translate-x-1/2" />
-              </div>
+              <div className="hero-glow pointer-events-none absolute inset-0 -m-16 rounded-full bg-[radial-gradient(circle,var(--color-cream)_0%,color-mix(in_srgb,var(--color-cream)_75%,transparent)_52%,transparent_74%)]" />
 
               <div ref={crest} className="relative">
-                {/* halo pings — behind the mark */}
-                <span className="crest-pulse pointer-events-none absolute inset-0 -m-4 rounded-full border border-gold/45" />
-                <span className="crest-pulse pointer-events-none absolute inset-0 -m-4 rounded-full border border-gold/45" />
+                <Crest
+                  alt={t.brandFull}
+                  className="w-52 max-w-full drop-shadow-[0_24px_50px_rgba(0,0,0,0.14)] sm:w-64 lg:w-[21rem]"
+                />
+              </div>
 
-                <div className="relative">
-                  <Crest
-                    alt={t.brandFull}
-                    className="w-52 max-w-full drop-shadow-[0_24px_50px_rgba(0,0,0,0.14)] sm:w-64 lg:w-[21rem]"
+              {/* Fragrance drifting up off the crest. Sits above the artwork —
+                  behind it the mark's own fill would hide most of them. */}
+              <div className="pointer-events-none absolute inset-0 z-10 -m-12">
+                {motes.map((m, i) => (
+                  <span
+                    key={i}
+                    className={`mote ${m.green ? 'mote-green' : ''}`}
+                    style={{
+                      left: `${m.left}%`,
+                      bottom: `${m.bottom}%`,
+                      width: `${m.size}px`,
+                      height: `${m.size}px`,
+                      filter: m.size > 5 ? 'blur(1.2px)' : undefined,
+                    }}
                   />
-
-                  {/* light effects, masked to the crest artwork (see .crest-sheen) */}
-                  <div className="crest-sheen pointer-events-none absolute inset-0 overflow-hidden">
-                    <div
-                      className="crest-glare absolute top-0 left-0 h-[60%] w-[60%] rounded-full opacity-0 blur-2xl
-                                 bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-gold)_75%,white)_0%,transparent_68%)]"
-                    />
-                    <div className="sheen-bar absolute -inset-y-1/4 left-0 w-[26%] blur-[2px]" />
-                  </div>
-                </div>
-
-                {/* glints */}
-                {[
-                  'top-[6%] left-[12%]',
-                  'top-[18%] right-[8%]',
-                  'bottom-[14%] left-[6%]',
-                  'bottom-[6%] right-[18%]',
-                ].map((pos) => (
-                  <svg
-                    key={pos}
-                    className={`crest-spark pointer-events-none absolute ${pos} h-3.5 w-3.5 text-gold`}
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-hidden
-                  >
-                    <path d="M12 0c.9 8 3.1 11.1 12 12-8.9.9-11.1 4-12 12-.9-8-3.1-11.1-12-12 8.9-.9 11.1-4 12-12Z" />
-                  </svg>
                 ))}
               </div>
             </div>

@@ -263,45 +263,78 @@
     --ul-origin: right;
   }
 
-  /* The crest's light effects are clipped to the mark's own alpha channel, so
-     the sheen and glare ride the artwork instead of a rectangle around it. */
-  .crest-sheen {
-    -webkit-mask-image: url('/logo.png');
-    mask-image: url('/logo.png');
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-  }
+  /* --- Crest atmosphere ----------------------------------------------------
+     One idea, not seven: the mark sits in a slowly turning wash of gold and
+     green, and fragrance drifts up off it. */
 
-  .dark .crest-sheen {
-    -webkit-mask-image: url('/logo-dark.png');
-    mask-image: url('/logo-dark.png');
-  }
-
-  /* On cream the sweep reads as warm gold; on dark it reads as white light. */
-  .sheen-bar {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      color-mix(in srgb, var(--color-gold) 55%, transparent) 36%,
-      color-mix(in srgb, var(--color-gold) 92%, white) 50%,
-      color-mix(in srgb, var(--color-gold) 55%, transparent) 64%,
-      transparent 100%
+  .crest-aura {
+    background: conic-gradient(
+      from 0deg,
+      color-mix(in srgb, var(--color-gold) 72%, transparent) 0%,
+      transparent 22%,
+      color-mix(in srgb, var(--color-brand-fg) 52%, transparent) 42%,
+      transparent 62%,
+      color-mix(in srgb, var(--color-gold) 64%, transparent) 82%,
+      color-mix(in srgb, var(--color-gold) 72%, transparent) 100%
     );
-    opacity: 0.8;
   }
 
-  .dark .sheen-bar {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      color-mix(in srgb, var(--color-gold) 45%, white) 36%,
-      #fff 50%,
-      color-mix(in srgb, var(--color-gold) 45%, white) 64%,
-      transparent 100%
+  .dark .crest-aura {
+    background: conic-gradient(
+      from 0deg,
+      color-mix(in srgb, var(--color-gold) 52%, transparent) 0%,
+      transparent 22%,
+      color-mix(in srgb, var(--color-brand-fg) 46%, transparent) 42%,
+      transparent 62%,
+      color-mix(in srgb, var(--color-gold) 44%, transparent) 82%,
+      color-mix(in srgb, var(--color-gold) 52%, transparent) 100%
     );
-    opacity: 0.9;
+  }
+
+  /* Motes of scent. Sized and placed inline; this is just the look.
+     On cream a white-cored dot disappears, so light mode keeps the core fully
+     saturated and only dark mode blows it out toward white. */
+  .mote {
+    position: absolute;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle,
+      var(--color-gold) 0%,
+      color-mix(in srgb, var(--color-gold) 50%, transparent) 48%,
+      transparent 74%
+    );
+    box-shadow: 0 0 7px color-mix(in srgb, var(--color-gold) 40%, transparent);
+    will-change: transform, opacity;
+  }
+
+  .mote-green {
+    background: radial-gradient(
+      circle,
+      var(--color-brand-fg) 0%,
+      color-mix(in srgb, var(--color-brand-fg) 45%, transparent) 48%,
+      transparent 74%
+    );
+    box-shadow: 0 0 7px color-mix(in srgb, var(--color-brand-fg) 35%, transparent);
+  }
+
+  .dark .mote {
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-gold) 88%, white) 0%,
+      color-mix(in srgb, var(--color-gold) 55%, transparent) 45%,
+      transparent 72%
+    );
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-gold) 55%, transparent);
+  }
+
+  .dark .mote-green {
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-brand-fg) 82%, white) 0%,
+      color-mix(in srgb, var(--color-brand-fg) 45%, transparent) 45%,
+      transparent 72%
+    );
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-brand-fg) 45%, transparent);
   }
 
   /* Icon buttons in the header / drawer */
