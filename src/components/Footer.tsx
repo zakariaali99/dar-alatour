@@ -1,67 +1,91 @@
-import React from 'react';
-import { useLanguage } from '../context/LanguageContext';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { ArrowUp, Phone, MapPin } from 'lucide-react'
+import { useLang } from '../lib/lang'
+import { scrollToId } from '../lib/smooth'
+import { CONTACT } from '../content'
+import Crest from './Crest'
 
-export const Footer: React.FC = () => {
-  const { t } = useLanguage();
+const SECTIONS = ['home', 'about', 'services', 'values', 'contact'] as const
+
+export default function Footer() {
+  const { t } = useLang()
+  const year = new Date().getFullYear()
 
   return (
-    <footer id="footer" className="bg-obsidian text-cream-100 pt-16 pb-8 border-t-2 border-gold-500">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
-        
-        {/* Brand Info */}
+    <footer className="relative overflow-hidden border-t border-line bg-paper">
+      <div className="container-x relative grid gap-12 py-16 md:grid-cols-[1.6fr_1fr_1.2fr] md:gap-12 md:py-20">
+        {/* Brand */}
         <div>
-          <div className="flex items-center gap-3.5 mb-4">
-            <img
-              src="assets/images/logo_clean.png"
-              alt="شركة دار العطور"
-              className="h-14 w-auto object-contain"
-            />
-            <div>
-              <h3 className="font-bold text-lg text-cream-50 font-serif">شركة دار العطور</h3>
-              <span className="text-[10px] text-gold-400 font-sans tracking-widest block">
-                DAR AL-ATOUR COMPANY
-              </span>
+          <div className="flex items-center gap-3">
+            <Crest className="h-12 w-auto" />
+            <div className="leading-none">
+              <p className="font-display text-lg font-medium text-ink">{t.brand}</p>
+              <p className="mt-1.5 text-[9px] uppercase tracking-[0.2em] text-muted">PERFUMES CO.</p>
             </div>
           </div>
-          <p className="text-xs text-cream-300/70 leading-relaxed">
-            شركة ليبية متخصصة في استيراد العطور العالمية الفاخرة، والزيوت العطرية الخام ومستحضرات التجميل عالية الجودة.
-          </p>
+
+          <p className="mt-6 max-w-xs text-[0.875rem] leading-[1.85] text-ink-soft">{t.footer.tagline}</p>
+
+          <span className="mt-7 block h-px w-12 bg-gold" />
         </div>
 
-        {/* Location */}
+        {/* Nav */}
         <div>
-          <h4 className="font-bold text-sm text-gold-400 mb-4 font-serif uppercase tracking-wider">
-            {t('footerAddressTitle')}
-          </h4>
-          <p className="flex items-center gap-2 text-xs text-cream-200">
-            <MapPin className="w-4 h-4 text-gold-400 shrink-0" />
-            <span>{t('footerAddress')}</span>
-          </p>
+          <p className="eyebrow">{t.footer.nav}</p>
+          <ul className="mt-6 space-y-3.5">
+            {SECTIONS.map((id) => (
+              <li key={id}>
+                <button
+                  onClick={() => scrollToId(id)}
+                  className="link-underline text-[0.875rem] text-ink-soft transition-colors duration-300 hover:text-ink"
+                >
+                  {t.nav[id]}
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Direct Corporate Contact */}
+        {/* Contact */}
         <div>
-          <h4 className="font-bold text-sm text-gold-400 mb-4 font-serif uppercase tracking-wider">
-            {t('footerPhoneTitle')}
-          </h4>
-          <p className="flex items-center gap-2 text-xs text-cream-200 mb-2">
-            <Phone className="w-4 h-4 text-gold-400 shrink-0" />
-            <a href="tel:0914091100" className="hover:text-gold-400 transition-colors">
-              0914091100 (+218 91 409 1100)
-            </a>
-          </p>
-          <p className="flex items-center gap-2 text-xs text-cream-200">
-            <Mail className="w-4 h-4 text-gold-400 shrink-0" />
-            <span>info@dar-alatour.ly</span>
-          </p>
+          <p className="eyebrow">{t.footer.reach}</p>
+          <ul className="mt-6 space-y-4 text-[0.875rem] text-ink-soft">
+            <li>
+              <a
+                href={`tel:${CONTACT.phoneTel}`}
+                className="group flex items-center gap-3 transition-colors duration-300 hover:text-ink"
+              >
+                <Phone size={15} strokeWidth={1.6} className="shrink-0 text-brand-fg" />
+                <span dir="ltr" className="tracking-wide">
+                  {CONTACT.phoneDisplay}
+                </span>
+              </a>
+            </li>
+            <li className="flex items-start gap-3 leading-[1.75]">
+              <MapPin size={15} strokeWidth={1.6} className="mt-0.5 shrink-0 text-brand-fg" />
+              <span>{t.contact.address}</span>
+            </li>
+          </ul>
         </div>
-
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 pt-6 border-t border-cream-200/10 text-center text-xs text-cream-400/60">
-        <p>{t('footerRights')}</p>
+      <div className="border-t border-line">
+        <div className="container-x flex flex-col gap-3 py-6 text-[0.75rem] text-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {year} {t.brandFull}
+          </p>
+
+          <div className="flex items-center gap-5">
+            <p>{t.footer.rights}</p>
+            <button
+              onClick={() => scrollToId('home')}
+              className="icon-btn !h-8 !min-w-8"
+              aria-label={t.nav.home}
+            >
+              <ArrowUp size={14} strokeWidth={1.8} />
+            </button>
+          </div>
+        </div>
       </div>
     </footer>
-  );
-};
+  )
+}

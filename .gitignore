@@ -3,4 +3,11 @@ dist
 dist-ssr
 *.local
 .DS_Store
+.vite
 *.log
+.env
+.env.*
+!.env.example
+
+# TypeScript build info
+*.tsbuildinfo

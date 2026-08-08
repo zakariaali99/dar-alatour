@@ -1,35 +1,43 @@
-import React from 'react';
-import { LanguageProvider } from './context/LanguageContext';
-import { Navbar } from './components/Navbar';
-import { Hero } from './components/Hero';
-import { Heritage } from './components/Heritage';
-import { Specialties } from './components/Specialties';
-import { FragrancePyramid } from './components/FragrancePyramid';
-import { Partnerships } from './components/Partnerships';
-import { Footer } from './components/Footer';
+import { useEffect } from 'react'
+import Nav from './components/Nav'
+import Hero from './components/Hero'
+import About from './components/About'
+import Services from './components/Services'
+import Values from './components/Values'
+import Contact from './components/Contact'
+import CtaBand from './components/CtaBand'
+import Footer from './components/Footer'
+import ScrollProgress from './components/ScrollProgress'
+import WhatsAppFab from './components/WhatsAppFab'
+import { ScrollTrigger } from './lib/motion'
+import { useSmoothScroll } from './lib/smooth'
+import { useLang } from './lib/lang'
 
-const MainContent: React.FC = () => {
+export default function App() {
+  const { lang } = useLang()
+
+  useSmoothScroll()
+
+  // Layout shifts when the language (and direction) flips.
+  useEffect(() => {
+    const id = window.setTimeout(() => ScrollTrigger.refresh(), 150)
+    return () => window.clearTimeout(id)
+  }, [lang])
+
   return (
-    <div className="min-h-screen bg-cream-100 text-obsidian selection:bg-gold-500 selection:text-white">
-      <Navbar />
-
+    <div className="grain relative min-h-screen bg-cream">
+      <ScrollProgress />
+      <Nav />
       <main>
         <Hero />
-        <Heritage />
-        <Specialties />
-        <FragrancePyramid />
-        <Partnerships />
+        <About />
+        <Services />
+        <Values />
+        <Contact />
+        <CtaBand />
       </main>
-
       <Footer />
+      <WhatsAppFab />
     </div>
-  );
-};
-
-export const App: React.FC = () => {
-  return (
-    <LanguageProvider>
-      <MainContent />
-    </LanguageProvider>
-  );
-};
+  )
+}
